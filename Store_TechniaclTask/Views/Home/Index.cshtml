@@ -1,0 +1,409 @@
+﻿@model ShoppingStoreVM
+@{
+    ViewData["PageTitle"] = "Home Page";
+
+}
+@section Styless{
+    <style>
+        .card-checked {
+            background-color: #f2f2f2;
+            box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+        }
+        .cards-parent{
+            height:18rem;
+        }
+        .loader {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 1;
+            width: 120px;
+            height: 120px;
+            margin: -76px 0 0 -76px;
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+    </style>
+    <link href="~/assets/plugins/Pageination/pagination.css" rel="stylesheet" />
+}
+<input type="hidden"id="ShoppingStoreID" asp-for="ID" />
+
+
+
+<div class="d-flex flex-wrap flex-stack mb-0">
+    <div class="d-flex flex-shrink-0">
+        </div>
+       
+    </div>
+<div class="d-flex flex-wrap flex-stack mb-5" >
+    <div class="d-flex flex-shrink-0">
+        <div class="d-none" id="SelectedProductsActions_Div">
+            <button onclick="OpenSelectedProductsModal()" class="btn btn-icon-info  border border-solid btn-active-light-info">
+                <i class="bi bi-check2-square fs-3"></i>
+                <span class="TotalSelectedProductsSpan"></span><span> View Selected</span>
+            </button>
+            <button onclick="SaveSelectedProducts(@(Model?.ID??0))" class="btn btn-icon-success  border border-solid btn-active-light-success">
+                <i class="bi bi-plus fs-3"></i>
+                <span class="indicator-label"> Save </span>
+                <span class="indicator-progress">
+                    PleaseWait ...
+                    <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                </span>
+            </button>
+            <button onclick="ArchiveSelectedProducts(@(Model?.ID??0))" class="btn btn-icon-primary  border border-solid btn-active-light-primary">
+                <i class="bi bi-archive-fill fs-3"></i>
+                <span class="indicator-label"> Archive </span>
+                <span class="indicator-progress">
+                    PleaseWait ...
+                    <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                </span>
+            </button>
+            <div class="d-inline-block">
+                <form id="ShoppingStoreForm" class="" autocomplete="off">
+                    <input type="hidden" asp-for="ID" />
+                    <div class="mb-0">
+                        <input asp-for="ReminderTime" class="form-control form-control-solid border border-solid btn-active-light-primary" placeholder="Set Reminder" id="kt_datepicker_3" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex flex-wrap my-2">
+        <form id="SearchForm" class=" align-items-center d-lg-flex w-100 mb-5 mb-lg-0 position-relative" autocomplete="off">
+            <input type="hidden">
+
+            <span class="svg-icon svg-icon-2 svg-icon-gray-700 position-absolute top-50 translate-middle-y ms-4" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M21.7 18.9L18.6 15.8C17.9 16.9 16.9 17.9 15.8 18.6L18.9 21.7C19.3 22.1 19.9 22.1 20.3 21.7L21.7 20.3C22.1 19.9 22.1 19.3 21.7 18.9Z" fill="black"></path>
+                    <path opacity="0.3" d="M11 20C6 20 2 16 2 11C2 6 6 2 11 2C16 2 20 6 20 11C20 16 16 20 11 20ZM11 4C7.1 4 4 7.1 4 11C4 14.9 7.1 18 11 18C14.9 18 18 14.9 18 11C18 7.1 14.9 4 11 4ZM8 11C8 9.3 9.3 8 11 8C11.6 8 12 7.6 12 7C12 6.4 11.6 6 11 6C8.2 6 6 8.2 6 11C6 11.6 6.4 12 7 12C7.6 12 8 11.6 8 11Z" fill="black"></path>
+                </svg>
+            </span>
+
+            <input type="text" class="form-control bg-transparent ps-13 fs-7 h-40px" name="search" value="" placeholder="Products Quick Search" id="ProductsSearchInput">
+
+            <span id="SearchInputSpanner" class="position-absolute top-50 end-0 translate-middle-y lh-0 me-5 d-none">
+                <span class="spinner-border h-15px w-15px align-middle text-gray-400"></span>
+            </span>
+            <span id="CloseIconProductSearch" class="btn btn-flush btn-active-color-primary position-absolute top-50 end-0 translate-middle-y lh-0 me-4 d-none" onclick="ClearSearchInput()">
+                <!--begin::Svg Icon | path: icons/duotune/arrows/arr061.svg-->
+                <span class="svg-icon svg-icon-2 svg-icon-lg-1 me-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="black"></rect>
+                        <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="black"></rect>
+                    </svg>
+                </span>
+                <!--end::Svg Icon-->
+            </span>
+        </form>
+    </div>
+</div>
+
+<div class="row  g-6 g-xl-9" id="ProductsdataContainer">
+
+</div>
+<div class="d-flex flex-stack flex-wrap pt-10" id="ProductsDivContainer">
+
+</div>
+<div class="modal fade" id="SelectedProductsModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <span><i class="bi bi-x-lg"></i></span>
+                </div>
+            </div>
+            <div class="modal-body px-10 px-lg-15 pt-0 pb-15">
+                <div class="mb-13 text-center">
+                    <h1 class="mb-3"></h1>
+                </div>
+                <div class="table-responsive">
+                    <table id="SelectedProductsTable" class="table align-middle table-row-bordered border fs-6 gy-5 gs-6">
+                        <thead class="bg-light">
+                            <tr class="text-start fw-bolder fs-7 text-uppercase gs-0">
+                                <th>#</th>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr class="text-start fw-bolder fs-7 text-uppercase gs-0">
+                                <th class="text-center" colspan="2">Total Prices </th>
+                                <th id="TotalPricesFooter">
+                                </th>
+                                <th>
+                                </th>
+                            </tr>
+
+                        </tfoot>
+                    </table>
+
+                </div>
+                @*<div class="text-end">
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-light btn-outline-default btn-defult me-3">Close</button>
+                    </div>*@
+            </div>
+
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/assets/plugins/Pageination/pagination.js"></script>
+    <script>
+        let SelectedProductsActions = $("#SelectedProductsActions_Div");
+
+        let ListOfSelectedProducts =  @Html.Raw(Json.Serialize(Model?.DetailsVM ?? new List<ShoppingStoreDetailsVM>()));
+        let dataContainer = $("#ProductsdataContainer");
+        let SearchInput = $("#ProductsSearchInput");
+        function ClearSearchInput() {
+            SearchInput.val("");
+            SearchInProducts();
+        }
+        function DropFromSelectedProducts(ProductID) {
+            ListOfSelectedProducts = ListOfSelectedProducts.filter(function (value, index, arr) {
+                return value.ProductID != ProductID;
+            });
+            UnSelectProductsFunc();
+            OpenSelectedProductsModal();
+        }
+        function OpenSelectedProductsModal() {
+            let TotalPrices = 0;
+            ListOfSelectedProducts.forEach(x => TotalPrices += parseFloat(x.ProductPrice))
+
+            CreateCommonDatatableJson({
+                TableID: "#SelectedProductsTable",
+                DataTableLengthMenuCommon: [[3, 6, -1], [3, 6, getToken("All")]],
+                DataJson: ListOfSelectedProducts,
+                "Columns": [
+                    { "data": "ProductName" },
+                    { "data": "ProductPrice" },
+                {
+                    "data": "ID",
+                    "className": "text-center",
+                    "render": function (data, ypet, full, meta) {
+                        let Remove = `<a href="javascript:DropFromSelectedProducts('${data}');"  class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1" >
+                                                                        <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="${getToken("Delete")}"><i class="bi bi-trash fs-4 text-danger"></i></span>
+                                                                    </a>`;
+                        return Remove;
+                    },
+                }
+                ],
+            });
+            $("#TotalPricesFooter").text(TotalPrices)
+            $("#SelectedProductsModal").modal("show")
+        }
+        function SelectProductsFunc() {
+            $.each(ListOfSelectedProducts, (i, obj) => {
+                let CheckBox = $(`#ProductsdataContainer input[type="checkbox"][value='${obj.ProductID}'].d-none`);
+                CheckBox.prop("checked", true);
+                $(CheckBox).parents('a.cards-parent').addClass("card-checked")
+            })
+            DisplayActions();
+        }
+        function UnSelectProductsFunc() {
+            $.each($(`#ProductsdataContainer input[type="checkbox"].d-none:checked`), (i, el) => {
+                let ProductID = $(el).attr("value");
+                if (ListOfSelectedProducts.some(x => x.ProductID == ProductID) == false ) {
+                    $(el).prop("checked", false);
+                    $(el).parents('a.cards-parent').removeClass("card-checked")
+                }
+            })
+            DisplayActions();
+
+        }
+        function CustomPagenation(CurentPage, TotalPages, TotalCount) {
+
+            let items = '';
+            if (CurentPage > 1) {
+                items += `<li class="paginationjs-prev J-paginationjs-previous" data-num="${CurentPage - 1}" title="Previous page"><a href="">«</a></li>`;
+            }
+            for (var i = 1; i <= TotalPages; i++) {
+                items += `<li class="page-item ${CurentPage == i ? 'active' : ''} " data-num="${i}"><a href="" class='page-link'>${i}</a></li>`;
+            }
+            if (CurentPage < TotalPages) {
+                items += `<li class="paginationjs-next J-paginationjs-next" data-num="${CurentPage + 1}" title="Next page"><a href="">»</a></li>`;
+            }
+            return ` <div class="fs-6 fw-bold text-gray-700">Showing 1 to 10 of 50 entries</div>
+                <ul class="pagination">
+${items}
+                </ul>
+        <div class="paginationjs">
+            <div class="paginationjs-nav J-paginationjs-nav">${CurentPage} /${TotalPages}</div>
+            <div class="paginationjs-go-input">
+            <input type="text" class="J-paginationjs-go-pagenumber"></div>
+            <div class="paginationjs-go-button">
+            <input type="button" class="J-paginationjs-go-button" value="Go"></div>
+        </div>`
+        }
+        function ProductsDrawerAsHtml(Products) {
+
+            let html = '';
+            $.each(Products, function (i, product) {
+                html += `<div class="col-md-6 col-xl-4">
+                        <a href="javascript:CheckProduct(${product.ID});" class="cards-parent card border-hover-primary">
+                            <input type="checkbox" value='${product.ID}' class="d-none" />
+                            <input type="text" value='${product.Price}' class="d-none product-Price" />
+                            <input type="text" value='${product.Name}' class="d-none product-Name" />
+                            <div class="card-header border-0 pt-9">
+                                <div class="card-title m-0">
+                                    <div class="symbol symbol-50px w-50px bg-light">
+                                        <img src="/assets/media/svg/brand-logos/plurk.svg" alt="image" class="p-3">
+                                    </div>
+                                </div>
+                                <div class="card-toolbar">
+                                    <span class="badge badge-light-primary fw-bolder me-auto px-4 py-3 fs-6"> ${product.Price} $</span>
+                                </div>
+                            </div>
+                            <div class="card-body overflow-scroll p-9">
+                                <div class="fs-3 fw-bolder text-dark">${product.Name}</div>
+                                <p class="text-gray-400 fw-bold fs-5 mt-1 mb-7">${product?.Description ?? ""}</p>
+                            </div>
+                        </a>
+                    </div>`
+            });
+            return html.length > 0 ? html : `<div class='text-center'><h1 class="d-flex flex-column text-info my-10 fs-5">Sorry , There is No Results ..... !!! </h1></div>`;
+        }
+        function SearchInProducts() {
+            //Get Current Page Number
+            var CurrentPagenumber = $("#ProductsDivContainer").pagination('getSelectedPageNum');
+            //Remove Old  If Exist
+            $("#ProductsDivContainer").pagination('go', 1)
+            $("#ProductsDivContainer").pagination('go', CurrentPagenumber)
+        }
+        function CheckProduct(ProductID) {
+            let checkBox = $(`input[type="checkbox"][value='${ProductID}'].d-none`);
+            let Price = checkBox.siblings(`input[type="text"].d-none.product-Price`).val();
+            let Name = checkBox.siblings(`input[type="text"].d-none.product-Name`).val();
+
+            checkBox.prop("checked", !checkBox.prop("checked"))
+            if (checkBox.prop("checked") == true) {
+                $(checkBox).parents('a.cards-parent').addClass("card-checked")
+                ListOfSelectedProducts.push({ ProductID: ProductID, ProductPrice: Price, ProductName: Name});
+            }
+            else {
+                $(checkBox).parents('a.cards-parent').removeClass("card-checked")
+                ListOfSelectedProducts = ListOfSelectedProducts.filter(function (value, index, arr) {
+                    return value.ProductID != ProductID;
+                });
+            }
+            DisplayActions();
+        }
+        function DisplayActions() {
+            if (ListOfSelectedProducts.length > 0) {
+                SelectedProductsActions.find('.TotalSelectedProductsSpan').text(` ( ${ListOfSelectedProducts.length} ) `)
+                SelectedProductsActions.removeClass('d-none')
+            }
+            else {
+                SelectedProductsActions.addClass('d-none')
+
+            }
+        }
+        function CreateQuestionBankPagenation() {
+
+            $(function () {
+                var Pagination = $("#ProductsDivContainer").pagination({
+                    dataSource: "/Products/GetAll_Paged?",
+                    locator: 'Date',
+                    //totalNumber: 10,
+                    showPrevious: true,
+                    showNext: true,
+                    showNavigator: true,
+                    showGoInput: true,
+                    showGoButton: true,
+                    autoHidePrevious: true,
+                    autoHideNext: true,
+                    //formatNavigator: (curentpage, totalpages, totalcount) => {
+                    //    return CustomPagenation(curentpage, totalpages, totalcount);
+                    //},
+                    //formatNavigator: '<span style="color: #f00"><%= currentPage %></span> st/rd/th, <%= totalPage %> pages, <%= totalNumber %> امتحان',
+                    totalNumberLocator: function (response) {
+
+                       
+                        // you can return totalnumber by analyzing response content
+                        return response.TotalCount;
+                    },
+                    pageSize: 9,
+                    alias: {
+                        pageNumber: 'pageNumber',
+                        pageSize: 'pageSize'
+                    },
+                    ajax: {
+                        beforeSend: function (xhr, settings) {
+
+                            dataContainer.html('<div class="loader"></div>');
+                            settings.url += `&Search=${SearchInput.val()}`
+                        }
+                    },
+                    callback: function (data, pagination) {
+                        $("#SearchInputSpanner").addClass('d-none')
+                        var Html = ProductsDrawerAsHtml(data);
+                        $("#ProductsdataContainer").html(Html);
+                        SelectProductsFunc();
+
+                    }
+                });
+            })
+
+        }
+        function SaveSelectedProducts(ShoppingStoreID) {
+            let DataToSent = $("#ShoppingStoreForm").serialize();
+            DataToSent += "&" + decodeURIComponent($.param({ DetailsVM: ListOfSelectedProducts }));
+            $.post(`/ShoppingStore/Save`, DataToSent, (res) => {
+                if (res.Status == true) {
+                    ShowNotification("success", res.Message);
+                    ListOfSelectedProducts = [];
+                    UnSelectProductsFunc();
+                }
+                else {
+                    //AssignModelResponseErrorsToControllers(res.ModelErrors, Form);
+                    ShowNotification("warning", res.Message);
+                }
+            }).fail((xhr, textStatus, errorThrown) => {
+                ShowNotification("warning", xhr.Message);
+            });
+        }
+        function ArchiveSelectedProducts(ShoppingStoreID) {
+            let DataToSent = $("#ShoppingStoreForm").serialize();
+            DataToSent += "&" + decodeURIComponent($.param({ DetailsVM: ListOfSelectedProducts }));
+            $.post(`/ShoppingStore/Archive`, DataToSent, (res) => {
+                if (res.Status == true) {
+                    ShowNotification("success", res.Message);
+                    ListOfSelectedProducts = [];
+                    UnSelectProductsFunc();
+                }
+                else {
+                    //AssignModelResponseErrorsToControllers(res.ModelErrors, Form);
+                    ShowNotification("warning", res.Message);
+                }
+            }).fail((xhr, textStatus, errorThrown) => {
+                ShowNotification("warning", xhr.Message);
+            });
+        }
+        $(document).ready(() => {
+            $("#kt_datepicker_3").flatpickr({
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+            });
+            CreateQuestionBankPagenation();
+            $("#SearchForm").on("submit", (e) => {
+                e.preventDefault();
+                $("#SearchInputSpanner").removeClass('d-none')
+
+                SearchInProducts();
+            })
+            SearchInput.on("keydown", () => {
+                if (SearchInput.val().length > 0) {
+                    $("#CloseIconProductSearch").removeClass("d-none")
+                }
+                else {
+                    $("#CloseIconProductSearch").addClass("d-none")
+                }
+            })
+        });
+    </script>
+}

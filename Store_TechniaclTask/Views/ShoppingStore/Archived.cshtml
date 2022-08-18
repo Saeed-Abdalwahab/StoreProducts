@@ -1,0 +1,139 @@
+﻿@{
+    ViewData["Title"] = SharedLocalizer.GetLocalizedHtmlString("Archived Products");
+    ViewData["PageTitle"] = SharedLocalizer.GetLocalizedHtmlString("Archived Products");
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styless{
+
+}
+<div class="card h-md-100">
+    <div class="card-header align-items-center border-0 pt-5">
+
+    </div>
+    <div class="card-body d-flex flex-column">
+        <div class="table-responsive">
+            <table id="PageTable" class="table align-middle table-row-bordered border fs-6 gy-5 gs-6">
+                <thead class="bg-light">
+                    <tr class="text-start fw-bolder fs-7 text-uppercase gs-0">
+                        <th>@SharedLocalizer.GetLocalizedHtmlString("#")</th>
+                        <th>@SharedLocalizer.GetLocalizedHtmlString("Date")</th>
+                        <th>@SharedLocalizer.GetLocalizedHtmlString("TotalPrice")</th>
+                        <th>@SharedLocalizer.GetLocalizedHtmlString("Operations")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="ShoppingDetailsModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <span><i class="bi bi-x-lg"></i></span>
+                </div>
+            </div>
+            <div class="modal-body px-10 px-lg-15 pt-0 pb-15">
+                <div class="mb-13 text-center">
+                    <h1 class="mb-3"></h1>
+                </div>
+                <div class="table-responsive">
+                    <table id="ShoppingDetailsTable" class="table align-middle table-row-bordered border fs-6 gy-5 gs-6">
+                        <thead class="bg-light">
+                            <tr class="text-start fw-bolder fs-7 text-uppercase gs-0">
+                                <th>#</th>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr class="text-start fw-bolder fs-7 text-uppercase gs-0">
+                                <th class="text-center" colspan="2">Total Prices </th>
+                                <th id="TotalPricesFooter">
+                                </th>
+
+                            </tr>
+
+                        </tfoot>
+                    </table>
+
+                </div>
+                @*<div class="text-end">
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-light btn-outline-default btn-defult me-3">Close</button>
+                    </div>*@
+            </div>
+
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+
+
+            function RefreshPageDatatable() {
+                let DatatableConfigration = {
+                    TableID: "#PageTable",
+                    Url: '/ShoppingStore/UserArchivedProducts',
+                    Columns: [
+                        {
+                            "data": "RegistrationDate_str"
+                        },
+                        {
+                            "data": "TotalPrices"
+                        },
+                        {
+                            "data": "ID",
+                            "className": "HideFromExport text-center",
+                            "render": function (data, ypet, full, meta) {
+                                let Remove = DataTableRowDeleteBtn(data);
+                                let Details = `<a href="javascript:ShowDetails('${data}')" data-PolicyType="BrowsPolicy" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
+                                    <span class="indicator-label" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="${getToken("Details")}"><i class="bi bi-exclamation-lg fs-3"></i></span>
+<span class="indicator-progress">
+            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+        </span>
+</a>`;
+                                let Save = `<a href="/home/index?ID=${data}" data-PolicyType="BrowsPolicy" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
+                                    <span class="indicator-label" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="${getToken("Save")}"><i class="bi bi-plus fs-3"></i></span>
+<span class="indicator-progress">
+            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+        </span>
+</a>`;
+                                return  Remove + Details+Save;
+                            },
+                        },
+                    ]
+                }
+                CreateCommonDatatableAjax(DatatableConfigration, "", true, false);
+        }
+        function ShowDetails(ID) {
+            let SelectedRow = new $.fn.dataTable.Api("#PageTable").rows().data().filter(x => x.ID == ID)[0];
+
+            let TotalPrices = SelectedRow.TotalPrices;
+            let Data = SelectedRow.DetailsVM;
+            CreateCommonDatatableJson({
+                TableID: "#ShoppingDetailsTable",
+                DataTableLengthMenuCommon: [[3, 6, -1], [3, 6, getToken("All")]],
+                DataJson: Data,
+                "Columns": [
+                    { "data": "ProductName" },
+                    { "data": "ProductPrice" },
+                ],
+            });
+            $("#TotalPricesFooter").text(TotalPrices)
+            $("#ShoppingDetailsModal").modal("show")
+        }
+            $(document).ready(() => {
+                RefreshPageDatatable();
+            })
+    </script>
+
+
+
+}

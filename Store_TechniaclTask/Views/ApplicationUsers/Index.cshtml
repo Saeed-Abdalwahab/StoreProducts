@@ -1,0 +1,428 @@
+﻿@model ApplicationUserVM
+@{
+    ViewData["Title"] = SharedLocalizer.GetLocalizedHtmlString("ApplicationUsers");
+    ViewData["PageTitle"] = SharedLocalizer.GetLocalizedHtmlString("ApplicationUsers");
+    ViewData["ModalName"] = "ApplicationUserVM";
+    ViewData["CardHeader"] = SharedLocalizer.GetLocalizedHtmlString("Add") + " " + SharedLocalizer.GetLocalizedHtmlString("ApplicationUser");
+    Layout = "~/Areas/Views/Shared/_Layout.cshtml";
+}
+@section Styless{
+    <style>
+        .select2-close-mask {
+            z-index: 2099 !important;
+        }
+
+        .select2-dropdown {
+            z-index: 3051 !important;
+        }
+    </style>
+}
+
+@await Html.PartialAsync("/Areas/Views/shared/partials/_SharedCardHeaderWithoutImport.cshtml")
+<div class="card-body d-flex flex-column">
+    <div class="table-responsive">
+        <table id="PageTable" class="table align-middle table-row-bordered border fs-6 gy-5 gs-6">
+            <thead class="bg-light">
+                <tr class="text-start fw-bolder fs-7 text-uppercase gs-0">
+                    <th>@SharedLocalizer.GetLocalizedHtmlString("#")</th>
+                    <th>@Html.DisplayNameFor(x => x.FirstName)</th>
+                    <th>@Html.DisplayNameFor(x => x.Email)</th>
+                    <th>@Html.DisplayNameFor(x => x.UserName)</th>
+                    <th>@Html.DisplayNameFor(x => x.Role)</th>
+                    <th>@SharedLocalizer.GetLocalizedHtmlString("Operations")</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+<div class="modal fade" id="ChangePasswordModal" style="overflow:hidden;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <span><i class="bi bi-x-lg"></i></span>
+                </div>
+            </div>
+            <div class="modal-body px-10 px-lg-15 pt-0 pb-15">
+                <div class="mb-13 text-center">
+                    <h1 class="mb-3">@SharedLocalizer.GetLocalizedHtmlString("ChangePassword")  (<span class="ChangePasswordUserName"></span>) </h1>
+                </div>
+                <form id="ChangePasswordForm" class="form Display">
+                    <input autocomplete="false" name="hidden" type="text" style="display:none;">
+
+                    <input type="hidden" id="ChangePAsswordID" asp-for="ID" />
+                    <div class="row g-9 mb-8">
+                        <div class="col-md-6 fv-row">
+                            <div class="mb-6 fv-row" data-kt-password-meter-custom="true">
+                                <!--begin::Wrapper-->
+                                <div class="mb-1">
+                                    <!--begin::Label-->
+                                    <label class="form-label fw-bolder text-dark fs-6" asp-for="Password"></label>
+                                    <!--end::Label-->
+                                    <!--begin::Input wrapper-->
+                                    <div class="position-relative mb-3">
+                                        <input class="form-control form-control-lg form-control-solid" type="password" placeholder="" value="" asp-for="Password" id="ChangePasswordPassword" autocomplete="off" />
+                                        <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-custom-control="visibility">
+                                            <i class="bi bi-eye-slash fs-2"></i>
+                                            <i class="bi bi-eye fs-2 d-none"></i>
+                                        </span>
+                                    </div>
+                                    <!--end::Input wrapper-->
+                                    <!--begin::Meter-->
+                                    <div class="d-flex align-items-center mb-3" data-kt-password-meter-custom-control="highlight">
+                                        <div class="flex-grow-1 bg-secondary bg-active-danger rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px"></div>
+                                    </div>
+                                </div>
+                                <div class="fv-plugins-message-container invalid-feedback">
+                                    <span asp-validation-for="Password"></span>
+                                </div>
+                                @*<div class="text-muted">Use 8 or more characters with a mix of letters, numbers &amp; symbols.</div>*@
+                                <!--end::Hint-->
+                            </div>
+                        </div>
+                        <div class="col-md-6 fv-row">
+                            <div class="mb-6 fv-row" data-kt-password-meter-custom="true">
+                                <!--begin::Wrapper-->
+                                <div class="mb-1">
+                                    <!--begin::Label-->
+                                    <label class="form-label fw-bolder text-dark fs-6" asp-for="ConfirmPassword"></label>
+                                    <!--end::Label-->
+                                    <!--begin::Input wrapper-->
+                                    <div class="position-relative mb-3">
+                                        <input class="form-control form-control-lg form-control-solid" id="ChangePasswordConfirmPassword" type="password" placeholder="" asp-for="ConfirmPassword" autocomplete="off" />
+                                        <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-custom-control="visibility">
+                                            <i class="bi bi-eye-slash fs-2"></i>
+                                            <i class="bi bi-eye fs-2 d-none"></i>
+                                        </span>
+                                    </div>
+                                    <!--end::Input wrapper-->
+                                    <!--begin::Meter-->
+                                    <div class="d-flex align-items-center mb-3" data-kt-password-meter-custom-control="highlight">
+                                        <div class="flex-grow-1 bg-secondary bg-active-danger rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px"></div>
+                                    </div>
+                                </div>
+                                <div class="fv-plugins-message-container invalid-feedback">
+                                    <span asp-validation-for="ConfirmPassword"></span>
+                                </div>
+
+                                @*<div class="text-muted">Use 8 or more characters with a mix of letters, numbers &amp; symbols.</div>*@
+                                <!--end::Hint-->
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                <div class="text-end">
+                    <button type="button" data-bs-dismiss="modal" class="btn btn-light me-3">@SharedLocalizer.GetLocalizedHtmlString("Cancel")</button>
+                    <button form="ChangePasswordForm" type="submit" class="btn btn-primary">
+                        <span class="indicator-label">@SharedLocalizer.GetLocalizedHtmlString("Save")</span>
+                        <span class="indicator-progress">
+                            @(SharedLocalizer.GetLocalizedHtmlString("PleaseWait")+" ...")
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="PageModal" style="overflow:hidden;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <span><i class="bi bi-x-lg"></i></span>
+                </div>
+            </div>
+            <div class="modal-body px-10 px-lg-15 pt-0 pb-15">
+                <div class="mb-13 text-ApplicationUser">
+                    <h1 class="mb-3 PageModalHeader"><span class="PageModalAction"></span> @SharedLocalizer.GetLocalizedHtmlString("ApplicationUser")</h1>
+                </div>
+                <form id="PageForm" class="form Display">
+                    <input autocomplete="false" name="hidden" type="text" style="display:none;">
+
+                    <input type="hidden" asp-for="ID" />
+                    <div class="row g-9 mb-8">
+                        <div class="col-md-6 fv-row">
+                            <label asp-for="FirstName" class="required d-flex align-items-center fs-6 fw-bold mb-2">
+                            </label>
+                            <input type="text" class="form-control form-control-solid" asp-for="FirstName" />
+                            <div class="fv-plugins-message-container invalid-feedback">
+                                <span asp-validation-for="FirstName"></span>
+                            </div>
+                        </div>
+                   
+                        <div class="col-md-6 fv-row">
+                            <label asp-for="Email" class="d-flex align-items-center fs-6 fw-bold mb-2">
+                            </label>
+                            <input type="email" class="form-control form-control-solid" asp-for="Email" />
+                            <div class="fv-plugins-message-container invalid-feedback">
+                                <span asp-validation-for="Email"></span>
+                            </div>
+                        </div>
+                        @*<div class="col-md-6 fv-row">
+                                <label asp-for="UserName" class="d-flex align-items-center fs-6 fw-bold mb-2">
+                                </label>
+                                <input type="text" class="form-control form-control-solid" asp-for="UserName" />
+                                <div class="fv-plugins-message-container invalid-feedback">
+                                    <span asp-validation-for="UserName"></span>
+                                </div>
+                            </div>*@
+                        <div class="col-md-6 fv-row">
+
+                            <label asp-for="Role" class="d-flex align-items-center fs-6 fw-bold mb-2">
+                            </label>
+
+                            <select asp-for="Role" asp-items="@((IEnumerable<SelectListItem>)ViewBag.Roles)" class="form-select form-select-solid Common_Select2" data-placeholder="@SharedLocalizer.GetLocalizedHtmlString("Selectanoption")" data-allow-clear="true">
+                                <option></option>
+                            </select>
+                            <div class="fv-plugins-message-container invalid-feedback">
+                                <span asp-validation-for="Role"></span>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6 fv-row">
+                            <div class="mb-6 fv-row" data-kt-password-meter-custom="true">
+                                <!--begin::Wrapper-->
+                                <div class="mb-1">
+                                    <!--begin::Label-->
+                                    <label class="form-label fw-bolder text-dark fs-6" asp-for="Password"></label>
+                                    <!--end::Label-->
+                                    <!--begin::Input wrapper-->
+                                    <div class="position-relative mb-3">
+                                        <input class="form-control form-control-lg form-control-solid" type="password" placeholder="" value="" asp-for="Password" autocomplete="off" />
+                                        <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-custom-control="visibility">
+                                            <i class="bi bi-eye-slash fs-2"></i>
+                                            <i class="bi bi-eye fs-2 d-none"></i>
+                                        </span>
+                                    </div>
+                                    <!--end::Input wrapper-->
+                                    <!--begin::Meter-->
+                                    <div class="d-flex align-items-center mb-3" data-kt-password-meter-custom-control="highlight">
+                                        <div class="flex-grow-1 bg-secondary bg-active-danger rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px"></div>
+                                    </div>
+                                </div>
+                                <div class="fv-plugins-message-container invalid-feedback">
+                                    <span asp-validation-for="Password"></span>
+                                </div>
+                                @*<div class="text-muted">Use 8 or more characters with a mix of letters, numbers &amp; symbols.</div>*@
+                                <!--end::Hint-->
+                            </div>
+                        </div>
+                        <div class="col-md-6 fv-row">
+                            <div class="mb-6 fv-row" data-kt-password-meter-custom="true">
+                                <!--begin::Wrapper-->
+                                <div class="mb-1">
+                                    <!--begin::Label-->
+                                    <label class="form-label fw-bolder text-dark fs-6" asp-for="ConfirmPassword"></label>
+                                    <!--end::Label-->
+                                    <!--begin::Input wrapper-->
+                                    <div class="position-relative mb-3">
+                                        <input class="form-control form-control-lg form-control-solid" type="password" placeholder="" asp-for="ConfirmPassword" autocomplete="off" />
+                                        <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-custom-control="visibility">
+                                            <i class="bi bi-eye-slash fs-2"></i>
+                                            <i class="bi bi-eye fs-2 d-none"></i>
+                                        </span>
+                                    </div>
+                                    <!--end::Input wrapper-->
+                                    <!--begin::Meter-->
+                                    <div class="d-flex align-items-center mb-3" data-kt-password-meter-custom-control="highlight">
+                                        <div class="flex-grow-1 bg-secondary bg-active-danger rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
+                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px"></div>
+                                    </div>
+                                </div>
+                                <div class="fv-plugins-message-container invalid-feedback">
+                                    <span asp-validation-for="ConfirmPassword"></span>
+                                </div>
+
+                                @*<div class="text-muted">Use 8 or more characters with a mix of letters, numbers &amp; symbols.</div>*@
+                                <!--end::Hint-->
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                @await Html.PartialAsync("/Areas/Views/shared/partials/_PageFormModalActionsBtn.cshtml")
+
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/assets/js/custom/authentication/password-meter-custom.js"></script>
+    <script>
+        function RefreshPageDatatable() {
+            let Controller = "/" + CurrentPageUrlInfo.Controller;
+            let Area = (CurrentPageUrlInfo.Area == null || CurrentPageUrlInfo.Area == undefined || CurrentPageUrlInfo.Area == "") ? "" : "/" + CurrentPageUrlInfo.Area;
+            let DatatableConfigration = {
+                TableID: "#PageTable",
+                Url: Area + Controller + "/GetAll",
+                Columns: [
+                    {
+                        "data": "FirstName"
+                    },
+                    {
+                        "data": "LastName"
+                    },
+                    {
+                        "data": "Email"
+                    },
+                    {
+                        "data": "UserName"
+                    },
+                    {
+                        "data": "Role"
+                    },
+
+                    {
+                        "data": "IsActive",
+                        "className": "HideFromExport",
+                        "render": function (data, ypet, full, meta) {
+                            if (IsInPolicy("CreatePolicy") == true) {
+                                let isChecked = "";
+                                if (data == true) {
+                                    isChecked = "checked";
+                                }
+                                return `<div class="form-check form-switch form-check-custom form-check-solid me-10">
+                                                                                    <input onchange="toogleActive(this,'${full.ID}')" class="form-check-input h-30px w-50px" type="checkbox" ${isChecked} value="" >
+                                                                                </div>`;
+                            }
+                            else if (data == true) {
+                                return `<i class="far fa-check-circle text-success"></i>`;
+                            }
+                            else {
+                                return `<i class="far fa-times-circle text-danger"></i>`;
+                            }
+                        }
+                    },
+                    {
+                        "className": "HideFromExport",
+                        "data": "ID",
+                        "render": function (data, ypet, full, meta) {
+                            let UserChangePasswprd = IsInPolicy("ChangePasswordPolicy") == true ? `  <a href="javascript:OpenChangePasswordModal('${data}','${full.Email}');" data-PolicyType="ChangePasswordPolicy" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1" >
+                                                            <span  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="${getToken("ChangePassword")}"><i class="fas fa-unlock-alt"></i></span>
+                                                            </a>`: '';
+                            let Edit = DataTableRowEditBtn(data);
+                            let Remove = DataTableRowDeleteBtn(data);
+                            let Details = DataTableRowDetailsBtn(data);
+                            return Edit + Remove + Details + UserChangePasswprd;
+                        },
+                    }
+                ]
+            }
+            CreateCommonDatatableAjax(DatatableConfigration, "", true, false, false);
+        }
+        function OpenChangePasswordModal(ID, Email) {
+            $("#ChangePasswordForm").trigger("reset");
+            $("#ChangePasswordForm #ChangePAsswordID").val(ID);
+            $("#ChangePasswordModal .ChangePasswordUserName").text(Email);
+            $("#ChangePasswordModal").modal("show");
+
+        }
+        function OpenPageModal(ID) {
+            ResetPageForm();
+            if (ID == 0 || ID == '' || ID == undefined || ID == null) {
+                $("#PageModal .PageModalAction").text((getToken("Add")));
+                $("#PageModal").modal("show");
+                $("#Password").val("");
+
+            }
+            else {
+                $("#PageModal [data-kt-password-meter-custom]").addClass("d-none")
+                $("#PageModal .PageModalAction").text((getToken("Edit")));
+                GetPageFormObj(ID);
+                $("#Password").val("");
+            }
+        }
+        function OpenPageModal_Detailes(ID) {
+            ResetPageForm();
+            $("#PageModal").modal("hide");
+            if (ID?.length > 0) {
+                $.get(`/${CurrentPageUrlInfo.Area}/${CurrentPageUrlInfo.Controller}/GetObj?ID=${ID}`, (res) => {
+                    populateJsonObj_ToForm($("#PageForm").first(), res.Data ?? res);
+                    $("#PageModal .PageModalAction").text((getToken("Details")));
+                    $("#PageForm").addClass("pe-none");
+                    $('#PageModal [type="submit"]').addClass("d-none");
+                    $("#PageModal [data-kt-password-meter-custom]").addClass("d-none")
+                    $("#PageModal .PageModalAction").text((getToken("Edit")));
+                    SetElmentReadolny($("#PageModal [class*='form-']"));
+                    $("#PageModal").modal("show");
+
+                }).fail((xhr, textStatus, errorThrown) => {
+                    ShowNotification("error", "");
+                });
+            }
+
+        }
+
+        $(document).ready(() => {
+            $("#Password").val("");
+            RefreshPageDatatable();
+            $("#PageModal").on('hidden.bs.modal', function () {
+                $("#PageModal [data-kt-password-meter-custom]").removeClass("d-none")
+                $("#Password").val("");
+
+            });
+        })
+
+        $("#ChangePasswordForm").on("submit", (e) => {
+            e.preventDefault();
+            let Form = $(e.currentTarget);
+            let ID = $(Form).find("[name='ID']").val();
+            let Url = "/ApplicationUsers/AdminChangePassword";
+            let IsValidForm = $(Form).valid();
+            $(Form).find("[disabled='disabled'][name]").each((i, el) => {
+                if ($(el).valid() != true) {
+                    IsValidForm = false;
+                }
+            })
+            if (IsValidForm) {
+
+                let DataToSent = $(Form).serialize();
+                $.post(Url, DataToSent, (res) => {
+                    if (res.Status == true) {
+
+                        ShowNotification("success", res.Message);
+                        RefreshPageDatatable();
+                        ResetPageForm();
+                        $(Form).parents(".modal").modal("hide");
+                        //if (Action != "/Create") {
+                        //}
+                    }
+                    else {
+                        AssignModelResponseErrorsToControllers(res.ModelErrors, Form);
+                        ShowNotification("warning", res.Message);
+                    }
+                }).fail((xhr, textStatus, errorThrown) => {
+                    ShowNotification("error", "");
+
+                }).done(function (data) {
+
+                });
+
+
+            }
+            else {
+            }
+        });
+
+    </script>
+    @*@await Html.PartialAsync("/Areas/Views/shared/partials/_UploadExceleModal.cshtml")*@
+
+}

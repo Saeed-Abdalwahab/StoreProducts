@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="HtmlSanitizer" Version="7.1.542" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.1.19" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.19" />
+    <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.19" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Store_TechniaclTask.DAL\Store_TechniaclTask.DAL.csproj" />
+    <ProjectReference Include="..\Store_TechniaclTask.Repository\Store_TechniaclTask.Repository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="HelperServices\Identity\Abstraction\" />
+    <Folder Include="HelperServices\Identity\Implementation\" />
+  </ItemGroup>
+
+</Project>

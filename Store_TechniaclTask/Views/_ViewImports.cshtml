@@ -1,0 +1,23 @@
+﻿
+@using Microsoft.Extensions.Localization;
+@using Store_TechniaclTask.Services.Resources;
+@using System.Resources;
+@using Newtonsoft.Json;
+@using Store_TechniaclTask.Services.HelperServices.Abstraction;
+@using _Store_TechniaclTask;
+@using _Store_TechniaclTask.Web.ExtensionMethods;
+@using Store_TechniaclTask.Services.Enums;
+@using Store_TechniaclTask.Services.ViewModels;
+@using Store_TechniaclTask.Services.ViewModels.Common;
+@using Store_TechniaclTask.Services.ViewModels.IdentityViewModels;
+@using Store_TechniaclTask.Services.ViewModels.DTO;
+@using Store_TechniaclTask.Services;
+@using Store_TechniaclTask.DAL.Enums;
+@using Store_TechniaclTask.Services.HelperServices;
+
+@inject LocService SharedLocalizer;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.Extensions.Caching.Distributed.IDistributedCache _DistributedCache
+@inject Store_TechniaclTask.Services.ModelServices.Abstraction.Identity.IApplicationUserService UserService
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
